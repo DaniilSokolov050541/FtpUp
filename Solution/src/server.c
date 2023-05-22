@@ -138,20 +138,17 @@ int main() {
         exit(EXIT_FAILURE);
     }
 
+	//Подготовка структуры fd_set для использования с функцией select()
+        fd_set read_fds;
+        FD_ZERO(&read_fds);
+        FD_SET(server_socket, &read_fds);
+		
     // Ожидание входящих соединений
     while (running) {
         if (get_thread_count() < 1) {
             continue;
         }
-        // Ожидание входящего соединения
-        struct sockaddr_in client_address = {0};
-        socklen_t client_address_length = sizeof(client_address);
-        //Подготовка структуры fd_set для использования с функцией select()
-        fd_set read_fds;
-        FD_ZERO(&read_fds);
-        FD_SET(server_socket, &read_fds);
-
-        // Вызов select() для проверки состояния сокета
+		// Вызов select() для проверки состояния сокета
         int select_result = select(server_socket + 1, &read_fds, NULL, NULL, NULL);
         if (select_result == -1)
         {
@@ -167,6 +164,9 @@ int main() {
                 break;  // Выход из цикла и завершение программы
             }
         }
+        // Ожидание входящего соединения
+        struct sockaddr_in client_address = {0};
+        socklen_t client_address_length = sizeof(client_address);        
         int client_socket = -1;
         if (FD_ISSET(server_socket, &read_fds))
         {
